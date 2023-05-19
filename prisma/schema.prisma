@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  u_id              Int               @id @default(autoincrement())
+  password        String            @unique
+  name            String
+  blood_group     String
+  gender          String
+  email           String
+  age             Int
+  date_of_birth   DateTime
+  ph_no           String
+  location        String
+  donated_history donated_history[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model donation_camp {
+  id                  BigInt  @id @default(autoincrement())
+  name                String?
+  email               String? @db.VarChar
+  ph_no               BigInt?
+  location            String?
+  permission_letter   String?
+  associated_hospital String?
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model donated_history {
+  id                BigInt    @id @default(autoincrement())
+  donor_id          Int?
+  patient_id        BigInt?
+  donated_time_date DateTime? @db.Timestamp(6)
+  user              user?     @relation(fields: [donor_id], references: [u_id])
+  patient           patient?  @relation(fields: [patient_id], references: [p_id])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model patient {
+  p_id              BigInt            @id @default(autoincrement())
+  password        String?           @db.VarChar
+  name            String?
+  blood_group     String?
+  gender          String?
+  email           String?           @db.VarChar
+  age             Int?              @db.SmallInt
+  dob             DateTime?         @db.Date
+  ph_no           String?
+  location        String?
+  req_donation    Boolean?
+  medical_history String?
+  donated_history donated_history[]
+}
+
+enum donation_interest{
+  interested_id
+  user_id
+  camp_id
+  donating_type
+}
+
+enum status{
+  pending
+  recieved
+}
